@@ -1,99 +1,146 @@
-import streatlit as st
+import streamlit as st
+import pandas as pd
+import numpy as np
+import os
+import matplotlib.pyplot as plt
+import seaborn as sns
+from PIL import Image,ImageFilter,ImageEnhance
 
-st.title("Hi")
-# Then, create your new samples of silica nanoparticles in Main_Independent_Dataset_COLAB.csv with Publication_id = 150
-# PLEASE UPLOAD the new file (Main_Independent_Dataset_COLAB.csv) containing your new samples of silica nanoparticles by running this code
-# pip3 install catboost ==1.0.4
-# import pandas as pd
-# import catboost
-# import io
-# from catboost import CatBoostClassifier
-# print('The CatBoost version is {}.'.format(catboost.__version__))
 
-# # Predict your new samples of silica nanoparticles by running this code, and PLEASE WAIT until the results have been downloaded 
+# Title and Subheader
+st.title("Iris EDA App")
+st.subheader("EDA Web App with Streamlit ")
 
-# your_new_samples_id = 150
-# independent_id = 116
-# data = pd.read_csv('Main_Indepedent_Dataset_COLAB (4).csv', encoding='unicode_escape').iloc[:,:15]
 
-# def convert(Cell_viability):
-#     if Cell_viability == 'Cytotoxic':
-#         return 1
-#     if Cell_viability == 'Non_cytotoxic':
-#         return 0    
-#     else:
-#         return ''
-    
-# def convert_back(Cell_viability):
-#     if Cell_viability == 1:
-#         return 'Cytotoxic'
-#     if Cell_viability == 0:
-#         return 'Non_cytotoxic'
-#     else:
-#       return ''
-    
-# data['convert'] = data['Cell_viability'].apply(convert)
-# data = data.drop('Cell_viability', axis=1)
-# data = data.rename(columns={'convert':'Cell_viability'}) 
+# EDA
+my_dataset = "iris.csv"
 
-# shuffled_main_dataset = data[data['Publication_id'] < independent_id].sample(frac=1, random_state=2022)
-# independent_dataset = data[data['Publication_id'] >= independent_id]
-# data = pd.concat([shuffled_main_dataset, independent_dataset])
+# To Improve speed and cache data
+@st.cache(persist=True)
+def explore_data(dataset):
+	df = pd.read_csv(os.path.join(dataset))
+	return df 
 
-# X = pd.get_dummies(data.drop('Cell_viability', axis=1))
-# X = X.drop([
-#     'SiO$_{2}$NP_medium_serum_15%_FBS',
-#     'Cell_morphology_microglia',
 
-#     'Cell_organ_heart',
+# Show Dataset
+if st.checkbox("Preview DataFrame"):
+	data = explore_data(my_dataset)
+	if st.button("Head"):
+		st.write(data.head())
+	if st.button("Tail"):
+		st.write(data.tail())
+	else:
+		st.write(data.head(2))
 
-#     'Cell_id_MPMC/3t3',
+# Show Entire Dataframe
+if st.checkbox("Show All DataFrame"):
+	data = explore_data(my_dataset)
+	st.dataframe(data)
 
-#     'Surface_modification_CHO',
-#     'Hydrodynamic_size_water_nm_not_determined',
-#     'Cell_source_hamster',
-#     'Assay_viability_Sytox_Red',
+# Show Description
+if st.checkbox("Show All Column Name"):
+	data = explore_data(my_dataset)
+	st.text("Columns:")
+	st.write(data.columns)
 
-#     'Viability_indicator_live_cell',
-# ], axis=1)
+# Dimensions
+data_dim = st.radio('What Dimension Do You Want to Show',('Rows','Columns'))
+if data_dim == 'Rows':
+	data = explore_data(my_dataset)
+	st.text("Showing Length of Rows")
+	st.write(len(data))
+if data_dim == 'Columns':
+	data = explore_data(my_dataset)
+	st.text("Showing Length of Columns")
+	st.write(data.shape[1])
 
-# y = data[['Cell_viability', 'Publication_id']]
-# y = y[y['Publication_id'] < independent_id]
-# y = y.drop('Publication_id',axis=1)
-# y = y.to_numpy().ravel()
 
-# y_test = data[['Cell_viability','Publication_id']]
-# y_test = y_test[y_test['Publication_id'] >= independent_id]
-# y_test =  y_test.drop('Publication_id',axis=1)
-# y_test = y_test.values
+if st.checkbox("Show Summary of Dataset"):
+	data = explore_data(my_dataset)
+	st.write(data.describe())
 
-# X_test = X[X['Publication_id'] >= independent_id]
-# X_test = X_test.drop('Publication_id',axis=1)
-# X_test = X_test.sort_index(ascending=True)
-# X_test_shap = X_test
-# X_test = X_test.values.reshape(-1,len(X_test.columns))
+# Selection
+species_option = st.selectbox('Select Columns',('sepal_length','sepal_width','petal_length','petal_width','species'))
+data = explore_data(my_dataset)
+if species_option == 'sepal_length':
+	st.write(data['sepal_length'])
+elif species_option == 'sepal_width':
+	st.write(data['sepal_width'])
+elif species_option == 'petal_length':
+	st.write(data['petal_length'])
+elif species_option == 'petal_width':
+	st.write(data['petal_width'])
+elif species_option == 'species':
+	st.write(data['species'])
+else:
+	st.write("Select A Column")
 
-# X = X[X['Publication_id'] < independent_id]
-# X = X.drop('Publication_id',axis=1)
+# Show Plots
+if st.checkbox("Simple Bar Plot with Matplotlib "):
+	data = explore_data(my_dataset)
+	data.plot(kind='bar')
+	st.pyplot()
 
-# models = {"CatBoost Classifier": CatBoostClassifier(learning_rate= 0.05,max_depth= 7,random_state=2022)}
 
-# for name, model in models.items():
-#     model.fit(X.values,y)
-#     preds = model.predict(X_test)
-    
-#     df_preds = pd.DataFrame(preds)
-#     df_preds['predicted'] = df_preds[0]
-#     ytestt = pd.DataFrame(y_test)
-#     ytestt['observed'] = ytestt[0]
-#     result = pd.concat([ytestt, df_preds], axis=1)
-#     result = result.drop([0,0], axis=1)
-#     independent_data = data[data['Publication_id'] >= independent_id].sort_index(ascending=True).reset_index()
-#     independent_data = pd.DataFrame(independent_data)
-#     result = pd.concat([result, independent_data], axis=1).drop(['Cell_viability'], axis=1)
-#     result['observed'] = result['observed'].apply(convert_back)
-#     result['predicted'] = result['predicted'].apply(convert_back)
-#     result[result['Publication_id'] >= your_new_samples_id].to_csv('CatBoost_your_result.csv')
-#     files.download('CatBoost_your_result.csv')
-#     result.to_csv('CatBoost_result.csv')
-#     files.download('CatBoost_result.csv')
+# Show Plots
+if st.checkbox("Simple Correlation Plot with Matplotlib "):
+	data = explore_data(my_dataset)
+	plt.matshow(data.corr())
+	st.pyplot()
+
+# Show Plots
+if st.checkbox("Simple Correlation Plot with Seaborn "):
+	data = explore_data(my_dataset)
+	st.write(sns.heatmap(data.corr(),annot=True))
+	# Use Matplotlib to render seaborn
+	st.pyplot()
+
+# Show Plots
+if st.checkbox("Bar Plot of Groups or Counts"):
+	data = explore_data(my_dataset)
+	v_counts = data.groupby('species')
+	st.bar_chart(v_counts)
+
+
+# Iris Image Manipulation
+@st.cache
+def load_image(img):
+	im =Image.open(os.path.join(img))
+	return im
+
+# Image Type
+species_type = st.radio('What is the Iris Species do you want to see?',('Setosa','Versicolor','Virginica'))
+
+if species_type == 'Setosa':
+	st.text("Showing Setosa Species")
+	st.image(load_image('imgs/iris_setosa.jpg'))
+elif species_type == 'Versicolor':
+	st.text("Showing Versicolor Species")
+	st.image(load_image('imgs/iris_versicolor.jpg'))
+elif species_type == 'Virginica':
+	st.text("Showing Virginica Species")
+	st.image(load_image('imgs/iris_virginica.jpg'))
+
+
+
+# Show Image
+if st.checkbox("Show Image/Hide Image"):
+	my_image = load_image('iris_setosa.jpg')
+	enh = ImageEnhance.Contrast(my_image)
+	num = st.slider("Set Your Contrast Number",1.0,3.0)
+	img_width = st.slider("Set Image Width",300,500)
+	st.image(enh.enhance(num),width=img_width)
+
+
+# About
+
+if st.button("About App"):
+	st.subheader("Iris Dataset EDA App")
+	st.text("Built with Streamlit")
+	st.text("Thanks to the Streamlit Team Amazing Work")
+
+if st.checkbox("By"):
+	st.text("Jesse E.Agbe(JCharis)")
+	st.text("Jesus Saves@JCharisTech")
+	
+	
