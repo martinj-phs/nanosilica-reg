@@ -1,6 +1,6 @@
 # Then, create your new samples of silica nanoparticles in Main_Independent_Dataset_COLAB.csv with Publication_id = 150
 # PLEASE UPLOAD the new file (Main_Independent_Dataset_COLAB.csv) containing your new samples of silica nanoparticles by running this code
-!pip3 install catboost ==1.0.4
+pip3 install catboost ==1.0.4
 import pandas as pd
 import catboost
 import io
