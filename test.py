@@ -1,20 +1,17 @@
 # Then, create your new samples of silica nanoparticles in Main_Independent_Dataset_COLAB.csv with Publication_id = 150
 # PLEASE UPLOAD the new file (Main_Independent_Dataset_COLAB.csv) containing your new samples of silica nanoparticles by running this code
 
-!rm Main_Indepedent_Dataset_COLAB.csv
-!pip install catboost==1.0.4
 import pandas as pd
 import catboost
 import io
 from catboost import CatBoostClassifier
 print('The CatBoost version is {}.'.format(catboost.__version__))
-uploaded = files.upload()
 
 # Predict your new samples of silica nanoparticles by running this code, and PLEASE WAIT until the results have been downloaded 
 
 your_new_samples_id = 150
 independent_id = 116
-data = pd.read_csv(io.BytesIO(uploaded['Main_Indepedent_Dataset_COLAB.csv']), encoding='unicode_escape').iloc[:,:15]
+data = pd.read_csv('Main_Indepedent_Dataset_COLAB.csv', encoding='unicode_escape').iloc[:,:15]
 
 def convert(Cell_viability):
     if Cell_viability == 'Cytotoxic':
