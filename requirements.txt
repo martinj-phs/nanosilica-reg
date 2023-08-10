@@ -1,0 +1,6 @@
+streamlit==0.70.0
+pandas==1.0.5
+annoy==1.17.0
+scrapy==2.4.0
+Unidecode==1.1.1
+catboost==1.0.4
